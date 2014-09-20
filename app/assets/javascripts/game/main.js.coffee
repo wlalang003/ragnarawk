@@ -1,6 +1,5 @@
 #= require ./creature/monster
 #= require ./sprite
-#= require_tree ./utilities
 #= require_tree ./spritesheet_details
 
 class gameApp.Main
@@ -26,7 +25,7 @@ class gameApp.Main
 
     @monster_limit = {
       poring: 0
-      thanatos: 10
+      thanatos: 1
     }
 
   start: ->

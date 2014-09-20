@@ -5,8 +5,9 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
     @name = name
     @spritesheet = spritesheet
     @action = "idle"
-    @xPosition = 20
-    @yPosition = 20
+    @direction = "BackLeft"
+    @xPosition = 400
+    @yPosition = 200
     @animations = spritesheet.animations
     @frameIndex = 0
     @frame
@@ -18,6 +19,7 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
     return
 
   update: ->
+    @getDirection()
     @randomWalk()
     @draw()
     return
@@ -25,11 +27,25 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
   destroy: ->
     #something
 
+  getDirection: ->
+    if @xPosition > @xDestination and @yPosition <= @yDestination
+      @direction = "FrontLeft"
+    else if @xPosition < @xDestination and @yPosition <= @yDestination
+      @direction = "FrontRight"
+    else if @xPosition > @xDestination and @yPosition >= @yDestination
+      @direction = "BackLeft"
+    else if @xPosition < @xDestination and @yPosition >= @yDestination
+      @direction = "BackRight"
+
+  frameToUse: ->
+    return "walking" + @direction
+
   draw: ->
-    if @parent.timer % 5 is 0
+    if @parent.timer % 4 is 0
       @frameIndex++
-      @frameIndex = 0  if @frameIndex > (@animations["walkingFront"].length - 1)
-    @frame = @animations["walkingFront"][@frameIndex]  if @action is "idle"
+      @frameIndex = 0  if @frameIndex > (@animations[@frameToUse()].length - 1)
+
+    @frame = @animations[@frameToUse()][@frameIndex]  if @action is "idle"
     @parent.context.drawImage @frame, @xPosition, @yPosition
     return
 
