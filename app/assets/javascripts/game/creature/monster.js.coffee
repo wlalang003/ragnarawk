@@ -1,5 +1,6 @@
-class gameApp.Monster
-  constructor: (name, spritesheet, parent) ->
+#= require ./base
+class gameApp.Creature.Monster extends gameApp.Creature.Base
+  initialize: (name, spritesheet, parent) ->
     @parent = parent
     @name = name
     @spritesheet = spritesheet
@@ -27,7 +28,7 @@ class gameApp.Monster
   draw: ->
     if @parent.timer % 5 is 0
       @frameIndex++
-      @frameIndex = 0  if @frameIndex > 7
+      @frameIndex = 0  if @frameIndex > (@animations["walkingFront"].length - 1)
     @frame = @animations["walkingFront"][@frameIndex]  if @action is "idle"
     @parent.context.drawImage @frame, @xPosition, @yPosition
     return
@@ -41,7 +42,7 @@ class gameApp.Monster
       @yPosition += @moveSpeed  if @yPosition < @yDestination
     else
       @xDestination = Math.floor(Math.random() * $(window).width() )
-      @yDestination = Math.floor(Math.random() * $(window).h() )
+      @yDestination = Math.floor(Math.random() * $(window).height() )
       @hasDestination = true
     return
 

@@ -1,7 +1,8 @@
 class gameApp.PoringSpritesheet
   constructor: (elementId, parent) ->
     @parent = parent
-    @spritesheetObject = document.getElementById(elementId)
+    @spritesheetObject = new Image()
+    @spritesheetObject.src = 'images/poring.png'
     @animationDetails =
       idleFront:
         animationName: "idleFront"
@@ -19,8 +20,13 @@ class gameApp.PoringSpritesheet
         xPosition: 0
         yPosition: 94
 
+      #walkingBack:
+      #walkingLeft:
+      #walkingRight
+
     #animation_details
     @animations = {}
-    @animations["idleFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.idleFront)
-    @animations["walkingFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.walkingFront)
+    @spritesheetObject.onload= =>
+      @animations["idleFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.idleFront)
+      @animations["walkingFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.walkingFront)
     return

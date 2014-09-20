@@ -1,33 +1,21 @@
-#= require ./monster
+#= require ./creature/monster
 #= require ./sprite
-#= require ./spritesheet_extractor
+#= require_tree ./utilities
 #= require_tree ./spritesheet_details
 
 class gameApp.Main
   constructor: ->
-    @gameScreen = document.getElementById("gameScreen")
-    @linkSheet = document.getElementById("linkSheet")
-    @context = @gameScreen.getContext("2d")
     @posX = 1
     @posY = 1
-    @ctr = 1
-    @spriteWidth = 120
-    @spriteHeight = 130
-    @linkWalkLeft = []
-    @linkWalkRight = []
-    @linkWalkUp = []
-    @linkWalkDown = []
     @timer = 0
     @multiple = 4
     @moveSpeed = 10
-    @monster_sprite = {
+    @monster_sheet = {
+      thanatos: new gameApp.ThanatosSpritesheet("poringSheet", @)
       poring: new gameApp.PoringSpritesheet("poringSheet", @)
-      thanatos: new gameApp.ThanatosSpritesheet("thanatosSheet", @)
-
     }
-
     @monster_count = {
-      poring: 5
+      poring: 0
       thanatos: 1
     }
 
@@ -35,71 +23,27 @@ class gameApp.Main
       poring: []
       thanatos: []
     }
-    @walkDirection = @linkWalkRight
-    document.onkeydown = (event) =>
-      keyPressed = String.fromCharCode(event.keyCode)
-      console.log "keyPressed = " + keyPressed
-      switch keyPressed
-        when "D"
-          @walkDirection = @linkWalkRight
-          @posX += @moveSpeed
-        when "A"
-          @walkDirection = @linkWalkLeft
-          @posX -= @moveSpeed
-        when "W"
-          @walkDirection = @linkWalkUp
-          @posY -= @moveSpeed
-        when "S"
-          @walkDirection = @linkWalkDown
-          @posY += @moveSpeed
 
-    @extractSprites()
+    @monster_limit = {
+      poring: 0
+      thanatos: 10
+    }
 
   start: ->
-    setInterval(@draw, 1000 / 60)
+    @gameScreen = $('<canvas id="gameScreen"></canvas>')[0]
+    @gameScreen.width = $(window).width()
+    @gameScreen.height = $(window).height()
+    $('body').html(@gameScreen)
+    @context = @gameScreen.getContext("2d")
+    @play()
 
-  extractSprites: ->
-    @ctr = 0
+  play: ->
+    @painter = setInterval(@draw, 1000 / 60)
 
-    while @ctr < 10
-      @canvas2 = document.createElement("canvas")
-      @canvas2.width = 120
-      @canvas2.height = 130
-      @context2 = @canvas2.getContext("2d")
-      @context2.drawImage @linkSheet, 120 * @ctr, 910, 120, 130, 0, 0, 120, 130
-      @linkWalkRight[@ctr] = @canvas2
-      @ctr++
-    @ctr = 0
-
-    while @ctr < 10
-      @canvas2 = document.createElement("canvas")
-      @canvas2.width = 120
-      @canvas2.height = 130
-      @context2 = @canvas2.getContext("2d")
-      @context2.drawImage @linkSheet, 120 * @ctr, 650, 120, 130, 0, 0, 120, 130
-      @linkWalkLeft[@ctr] = @canvas2
-      @ctr++
-    @ctr = 0
-
-    while @ctr < 10
-      @canvas2 = document.createElement("canvas")
-      @canvas2.width = 120
-      @canvas2.height = 130
-      @context2 = @canvas2.getContext("2d")
-      @context2.drawImage @linkSheet, 120 * @ctr, 780, 120, 130, 0, 0, 120, 130
-      @linkWalkUp[@ctr] = @canvas2
-      @ctr++
-    @ctr = 0
-
-    while @ctr < 10
-      @canvas2 = document.createElement("canvas")
-      @canvas2.width = 120
-      @canvas2.height = 130
-      @context2 = @canvas2.getContext("2d")
-      @context2.drawImage @linkSheet, 120 * @ctr, 520, 120, 130, 0, 0, 120, 130
-      @linkWalkDown[@ctr] = @canvas2
-      @ctr++
-    return
+  pause: ->
+    if @painter?
+      clearInterval(@painter)
+      @painter = undefined
 
   updateMonsters: ->
     # update or destroy a monster based on count
@@ -112,11 +56,10 @@ class gameApp.Main
           @monsters[k].pop @monsters[k][c]
           c++
       else if @monsters[k].length < @monster_count[k]
-        console.log k
         diff = @monster_count[k] - @monsters[k].length
         c = 0
         while c < diff
-          por = new gameApp.Monster(k, @monster_sprite[k], @)
+          por = new gameApp.Creature.Monster(k, @monster_sheet[k], @)
           @monsters[k].push(por)
           c++
 
@@ -128,7 +71,7 @@ class gameApp.Main
 
   incrementMonsters: ->
     _.each @monsters, (v, k) =>
-      if @monster_count[k] < 100
+      if @monster_count[k] < @monster_limit[k]
         @monster_count[k]++
 
   draw: =>
@@ -137,17 +80,12 @@ class gameApp.Main
     #ctx.drawImage(sprite, 0, tileIndex * spriteSize, spriteSize, spriteSize, tileX, tileY, spriteSize, spriteSize);
     #http://www.w3schools.com/tags/canvas_drawimage.asp
     #context.drawImage(linkSheet, 0, 910, 120, 130, 0, 0, 120, 130);
-    if (@timer % @multiple) is 0
-      @ctr++
-      @ctr = 0  if @ctr is 10
+    @updateMonsters()
+
 
     if (@timer % @monster_spawn_multiple) is 0
       @incrementMonsters()
 
-    #context.drawImage(walkDirection[ctr], posX, posY);
-    @updateMonsters()
-    #console.log(poring.draw());
-    @timer = -1  if @timer > 600
     @timer++
     return
 
@@ -155,9 +93,6 @@ jQuery ->
   $('#gameScreen').width(window.width)
   $('#gameScreen').height(window.height)
   gameApp.main = new gameApp.Main()
-
-  gameApp.main.gameScreen.width = $(window).width() #document.width is obsolete
-  gameApp.main.gameScreen.height = $(window).height() #document.height is obsolete
 
   gameApp.main.start()
 

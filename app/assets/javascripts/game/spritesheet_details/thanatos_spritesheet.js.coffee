@@ -1,7 +1,8 @@
 class gameApp.ThanatosSpritesheet
   constructor: (elementId, parent) ->
     @parent = parent
-    @spritesheetObject = document.getElementById(elementId)
+    @spritesheetObject = new Image()#document.getElementById(elementId)
+    @spritesheetObject.src = 'images/thanatos.png'
     @animationDetails =
       idleFront:
         animationName: "idleFront"
@@ -19,8 +20,15 @@ class gameApp.ThanatosSpritesheet
         xPosition: 0
         yPosition: 145
 
+      #walkingBack:
+      #walkingLeft:
+      #walkingRight
+
     #animation_details
     @animations = {}
-    @animations["idleFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.idleFront)
-    @animations["walkingFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.walkingFront)
+
+    @spritesheetObject.onload = =>
+      @animations["idleFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.idleFront)
+      @animations["walkingFront"] = gameApp.extractFrames(@spritesheetObject, @animationDetails.walkingFront)
+
     return
