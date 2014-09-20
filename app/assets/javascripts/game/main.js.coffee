@@ -10,22 +10,26 @@ class gameApp.Main
     @multiple = 4
     @moveSpeed = 10
     @monster_sheet = {
-      thanatos: new gameApp.ThanatosSpritesheet("poringSheet", @)
-      poring: new gameApp.PoringSpritesheet("poringSheet", @)
+      thanatos: new gameApp.ThanatosSpritesheet("thanatos", @)
+      poring: new gameApp.PoringSpritesheet("poring", @)
+      alicel: new gameApp.AlicelSpritesheet("alicel", @)
     }
     @monster_count = {
       poring: 0
-      thanatos: 1
+      thanatos: 0
+      alicel: 1
     }
 
     @monsters = {
       poring: []
       thanatos: []
+      alicel: []
     }
 
     @monster_limit = {
       poring: 0
-      thanatos: 1
+      thanatos: 0
+      alicel: 1
     }
 
   start: ->
