@@ -30,3 +30,9 @@ window.gameApp = {
       ctr++
     frameSet
  }
+ 
+window.pl = ->
+  gameApp.main.play()
+  
+ window.p = ->
+   gameApp.main.pause()

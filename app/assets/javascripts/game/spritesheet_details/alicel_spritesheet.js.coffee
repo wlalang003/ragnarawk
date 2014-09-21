@@ -62,25 +62,25 @@ class gameApp.AlicelSpritesheet
 
         back:
           a:
-            animationName: "attackingFrontA"
+            animationName: "attackingBackA"
             numberOfFrames: 2
             width: 75
             height: 100
             xPosition: 401
             yPosition: 121
           b:
-            animationName: "attackingFrontB"
+            animationName: "attackingBackB"
             numberOfFrames: 2
-            width: 100
+            width: 105
             height: 100
             xPosition: 551
             yPosition: 121
           c:
-            animationName: "attackingFrontC"
+            animationName: "attackingBackC"
             numberOfFrames: 1
-            width: 70
+            width: 75
             height: 100
-            xPosition: 751
+            xPosition: 761
             yPosition: 121
 
 

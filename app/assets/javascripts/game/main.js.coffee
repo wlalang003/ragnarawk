@@ -17,7 +17,7 @@ class gameApp.Main
     @monster_count = {
       poring: 0
       thanatos: 0
-      alicel: 1
+      alicel: 10
     }
 
     @monsters = {
@@ -29,13 +29,21 @@ class gameApp.Main
     @monster_limit = {
       poring: 0
       thanatos: 0
-      alicel: 1
+      alicel: 100
     }
 
   start: ->
     @gameScreen = $('<canvas id="gameScreen"></canvas>')[0]
     @gameScreen.width = $(window).width()
     @gameScreen.height = $(window).height()
+    
+    @gameScreen.onmousemove = (ev) =>
+      @setAllMonsterDestination(ev.x, ev.y)
+      
+      
+    @gameScreen.onclick = (ev) =>
+      @toggleAllMonsterAi()
+        
     $('body').html(@gameScreen)
     @context = @gameScreen.getContext("2d")
     @play()
@@ -69,6 +77,20 @@ class gameApp.Main
     _.each @monsters, (v, k) =>
       _.each @monsters[k], (mon) =>
         mon.update()
+        
+  _global_do_ai: false
+        
+  toggleAllMonsterAi: ->
+    @_global_do_ai = (not @_global_do_ai)
+    _.each @monsters, (v, k) =>
+      _.each @monsters[k], (mon) =>
+        mon._do_ai = @_global_do_ai
+
+        
+  setAllMonsterDestination: (x, y)->
+    _.each @monsters, (v, k) =>
+      _.each @monsters[k], (mon) =>
+        mon.setDestination(x,y)
 
   monster_spawn_multiple: 300
 

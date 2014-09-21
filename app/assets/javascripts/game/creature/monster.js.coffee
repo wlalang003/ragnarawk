@@ -3,12 +3,13 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
   initialize: (name, spritesheet, parent) ->
     @parent = parent
     @name = name
+    @id = _.uniqueId(name)
     @spritesheet = spritesheet
     @action = "attack"
     @direction = "left"
     @view = "back"
-    @xPosition = 400
-    @yPosition = 200
+    @xPosition = _.random(0, parent.gameScreen.clientWidth)
+    @yPosition = _.random(0, parent.gameScreen.clientHeight)
     @animations = spritesheet.animations
     @frameIndex = 0
     @frame
@@ -17,51 +18,46 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
     @xDestination
     @yDestination
     @moveSpeed = 1
-
-    parent.gameScreen.onmousemove = (ev) =>
-      #console.log ev
-      @yDestination = ev.y
-      @xDestination = ev.x
-
+    @_do_ai = parent._global_do_ai 
     return
+    
+  setDestination: (x, y) ->
+    if @_do_ai
+      @yDestination = y
+      @xDestination = x
 
   update: ->
-    #@getDirection()
-    #@_ai()
+    @setAction()
+    if @_do_ai
+      @hasDestination = false
+      @_ai()
+    else
+      @randomWalk()
     @draw()
     return
 
   destroy: ->
     #something
-
-  getDirection: ->
-    if @xPosition > @xDestination and @yPosition <= @yDestination
-      @direction = "FrontLeft"
-    else if @xPosition < @xDestination and @yPosition <= @yDestination
-      @direction = "FrontRight"
-    else if @xPosition > @xDestination and @yPosition >= @yDestination
-      @direction = "BackLeft"
-    else if @xPosition < @xDestination and @yPosition >= @yDestination
-      @direction = "BackRight"
-
+  
   frameToUse: ->
     return "walking" + @direction
 
   draw: ->
     current_animation = @animations[@action][@view][@direction]
-    if @parent.timer % 4 is 0
-      @frameIndex++
-      @frameIndex = 0  if @frameIndex > (current_animation.length - 1)
-
-    @frame = current_animation[@frameIndex]
-    if @frame?
-      @parent.context.drawImage @frame, @xPosition, @yPosition
+    if current_animation?
+      if @parent.timer % 4 is 0
+        @frameIndex++
+        @frameIndex = 0  if @frameIndex > (current_animation.length - 1)
+  
+      @frame = current_animation[@frameIndex]
+      if @frame?
+        @parent.context.drawImage @frame, @xPosition, @yPosition
     return
 
   randomWalk: ->
     @hasDestination = false if @xPosition is @xDestination and @yPosition is @yDestination
     if @hasDestination
-      @calculateNextPosition()
+      @_ai()
     else
       @xDestination = Math.floor(Math.random() * $(window).width() )
       @yDestination = Math.floor(Math.random() * $(window).height() )
@@ -86,7 +82,7 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
       @yPosition += @moveSpeed
 
   _is_attacking: false
-  _attacking_time: 300
+  _attacking_time: 60
   _attacking_counter: 0
 
   toggleAttack: =>
@@ -101,8 +97,8 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
   setToAttackIn: (interval) ->
     if not @atk?
       @atk = setInterval(@toggleAttack, interval)
-
-  _ai: ->
+      
+  setAction: ->
     @action = if @xPosition is @xDestination and @yPosition is @yDestination
       if @_is_attacking
         'attack'
@@ -110,6 +106,8 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
         'idle'
     else
       'walk'
+
+  _ai: ->
     if @action is 'walk'
       @calculateNextPosition()
     else if @action is 'idle'
@@ -118,6 +116,7 @@ class gameApp.Creature.Monster extends gameApp.Creature.Base
       @calculateNextPosition()
       @_attacking_counter++
       if @_attacking_counter >= @_attacking_time
+        @toggleAttack()
         @action = 'walk'
 
 
